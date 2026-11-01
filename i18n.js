@@ -213,6 +213,8 @@ const EN = {
   "{n} 件の候補が見つかりました（うち登録済み {h} 件）": ["Found {n} candidate ({h} already added)", "Found {n} candidates ({h} already added)"],
   "毎月くり返している請求は見つかりませんでした。2か月以上の明細を一緒に選ぶと見つけやすくなります。": "No monthly charges found. Choosing 2 or more months of statements together helps.",
   "{n} 件を追加しました": ["Added {n} item", "Added {n} items"],
+  "追加": "Add",
+  "新しい項目": "New item",
   "毎月": "Monthly",
   "毎年": "Yearly",
 

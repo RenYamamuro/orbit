@@ -1150,6 +1150,92 @@ td:first-child > .mini { padding-left: 40px; }
 #impResult:empty { display: none; }
 #impResult { margin-top: var(--s3); }
 
+/* ==========================================================================
+   iOS 純正に寄せる（食事管理アプリ・筋トレ記録アプリと同じ作り）
+   ========================================================================== */
+/* シートの見出し：左に「キャンセル／閉じる」、中央に題名、右に「保存」などの主な操作 */
+.dlg-head {
+  display: grid; grid-template-columns: 1fr minmax(0, auto) 1fr; align-items: center; gap: var(--s2);
+  padding: var(--s3) var(--s3) 0;
+}
+.dlg-head h3 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; }
+.dlg-head .ttl { min-width: 0; text-align: center; }
+.dlg-head .ttl .sub { margin: 2px 0 0; font-size: var(--t-xs); color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sh-side { display: flex; min-width: 0; }
+.sh-side.right { justify-content: flex-end; }
+.sh-btn {
+  height: 36px; min-width: 36px; padding: 0 var(--s4); border: 0; border-radius: var(--r-pill);
+  background: var(--fill); color: var(--ink); font: inherit; font-size: var(--t-sm); white-space: nowrap; cursor: pointer;
+  position: relative;
+}
+.sh-btn::after { content: ""; position: absolute; inset: -4px; }
+.sh-btn.primary { background: var(--accent-btn); color: #fff; font-weight: 600; }
+.sh-btn[hidden] { display: none; }
+.sh-btn:active { transform: scale(.96); }
+/* 削除は、純正の設定画面のように本文の下に赤い文字の行として置く */
+.danger-row {
+  width: 100%; margin-top: var(--s3); min-height: 48px; border: 0; border-radius: var(--r-md);
+  background: var(--panel-2); color: var(--crit); font: inherit; font-size: var(--t-md); cursor: pointer;
+}
+.danger-row[hidden] { display: none; }
+.danger-row:active { background: var(--press); }
+dialog h3 { font-weight: 600; }
+
+/* 選ぶ印は純正（リマインダー・メール）と同じ丸。見た目は 24pt、押せる範囲は 44pt */
+.imp-row > input[type="checkbox"] {
+  -webkit-appearance: none; appearance: none; width: 44px; height: 44px; margin: -10px -6px -10px -10px;
+  border: 0; border-radius: 0; box-shadow: none; cursor: pointer;
+  background: radial-gradient(circle at center, transparent 10.5px, var(--ink-3) 11px, var(--ink-3) 12px, transparent 12.5px);
+}
+.imp-row > input[type="checkbox"]:checked {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M3 7.4 5.8 10 11 4.2' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 14px no-repeat,
+    radial-gradient(circle at center, var(--accent-btn) 11.5px, transparent 12px);
+}
+.imp-row > input[type="checkbox"]::after { content: none; }
+.imp-row > input[type="checkbox"]:disabled { opacity: .35; cursor: default; }
+
+/* 追加ボタン：狭い画面ではタブバーの右に、同じ高さの丸として並べる（iOS のミュージックの検索ボタンと同じ配置） */
+.fab { display: none; }
+@media (max-width: 720px) {
+  .sidebar { right: calc(var(--s4) + 60px + var(--s2)); height: 60px; align-items: stretch; }
+  .sidebar .sb-item[data-nav] { justify-content: center; }
+  .fab {
+    display: grid; place-items: center; position: fixed; z-index: 20; right: var(--s4);
+    bottom: max(var(--s3), env(safe-area-inset-bottom)); width: 60px; height: 60px; border: 0; border-radius: 50%;
+    background: var(--glass); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+    box-shadow: var(--shadow-float), inset 0 0 0 1px var(--glass-edge);
+    color: color-mix(in srgb, var(--accent) 80%, var(--ink)); cursor: pointer;
+  }
+  .fab svg { width: 26px; height: 26px; }
+  .fab:active { transform: scale(.94); }
+  .toolbar #btnAdd { display: none; }
+
+  /* シートは画面の端から少し浮かせて、四隅を大きく丸める（今の iOS と同じ） */
+  dialog { border-radius: 32px; }
+  .dlg-head { padding: var(--s2) var(--s3) 0; }
+  .sh-btn { height: 44px; min-width: 44px; font-size: var(--t-md); }
+
+  /* 文字は iOS の標準の段階に合わせる（1rem = 本文 17pt）。
+     iPhone では html に -apple-system-body を当てるので、設定の「テキストサイズ」に合わせて全体が拡大縮小する */
+  html { font-size: 17px; }
+  :root {
+    --t-xs: .706rem;    /* Caption 1   12 */
+    --t-sm: .882rem;    /* Subhead     15 */
+    --t-md: 1rem;       /* Body        17 */
+    --t-lg: 1.176rem;   /* Title 3     20 */
+    --t-xl: 1.647rem;   /* Title 1     28 */
+    --t-2xl: 2rem;
+    --t-title: 2rem;    /* Large Title 34 */
+  }
+  .card > h2, .card-head h2 { font-size: var(--t-lg); }
+  dialog h3, .toolbar h1 { font-size: var(--t-md); }
+  select, input[type="text"], input[type="number"], input[type="date"], input[type="search"], textarea { font-size: max(16px, var(--t-md)); }
+}
+@supports (font: -apple-system-body) {
+  @media (max-width: 720px) { html { font: -apple-system-body; } }
+}
+
 /* 小さいボタンも、押せる範囲は 44px 前後まで広げる（見た目の大きさは変えない） */
 .btn.sm, .seg button, .cal-nav .btn { position: relative; }
 .btn.sm::after, .cal-nav .btn::after { content: ""; position: absolute; inset: -10px -4px; }
@@ -1226,6 +1312,9 @@ dialog > #undoBar { position: absolute; bottom: 84px; }
       <span class="lb" id="langLabel"></span>
     </button>
   </nav>
+  <button type="button" class="fab" id="fabAdd" aria-label="追加">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+  </button>
 
   <div class="pane">
     <div class="toolbar">
@@ -1420,7 +1509,11 @@ dialog > #undoBar { position: absolute; bottom: 84px; }
 <!-- ===== 追加・編集 ===== -->
 <dialog id="dlgItem">
   <form id="formItem" method="dialog">
-    <div class="dlg-head"><h3 id="dlgTitle">サブスクを追加</h3></div>
+  <div class="dlg-head">
+      <div class="sh-side"><button type="button" class="sh-btn" id="btnCancel">キャンセル</button></div>
+      <h3 id="dlgTitle">新しい項目</h3>
+      <div class="sh-side right"><button type="submit" class="sh-btn primary">保存</button></div>
+    </div>
     <div class="dlg-body">
       <div class="name-row">
         <button type="button" class="icon-pick" id="iconPick" aria-label="アイコンを選ぶ"><span id="iconPrev"></span></button>
@@ -1497,19 +1590,18 @@ dialog > #undoBar { position: absolute; bottom: 84px; }
         </div>
       </details>
       <p class="err" id="itemErr"></p>
-    </div>
-    <div class="dlg-foot">
-      <button type="button" class="btn danger" id="btnDel" hidden>削除</button>
-      <span style="flex:1"></span>
-      <button type="button" class="btn" id="btnCancel">キャンセル</button>
-      <button type="submit" class="btn primary">保存</button>
+      <button type="button" class="danger-row" id="btnDel" hidden>削除</button>
     </div>
   </form>
 </dialog>
 
 <!-- ===== カード明細から探す ===== -->
 <dialog id="dlgStmt">
-  <div class="dlg-head"><h3>カード明細から探す</h3></div>
+<div class="dlg-head">
+    <div class="sh-side"><button type="button" class="sh-btn" id="stmtClose">閉じる</button></div>
+    <h3>カード明細から探す</h3>
+    <div class="sh-side right"><button type="button" class="sh-btn primary" id="stmtAdd" hidden>追加</button></div>
+  </div>
   <div class="dlg-body">
     <p class="mini" style="margin:0">カード会社の Web 明細から CSV をダウンロードして選んでください。2か月以上、毎月同じ所から請求されているものを、登録していない固定費の候補として探します。ファイルはこの端末の中だけで読み、外には送りません。</p>
     <label class="f"><span>この明細の支払方法（任意）</span>
@@ -1522,29 +1614,28 @@ dialog > #undoBar { position: absolute; bottom: 84px; }
     <p class="mini" id="stmtInfo" style="margin:0"></p>
     <div id="impResult"></div>
   </div>
-  <div class="dlg-foot">
-    <span style="flex:1"></span>
-    <button type="button" class="btn" id="stmtClose">閉じる</button>
-    <button type="button" class="btn primary" id="stmtAdd" hidden>選んだ項目を追加</button>
-  </div>
 </dialog>
 
 <!-- ===== アイコンを選ぶ ===== -->
 <dialog id="dlgIcon">
-  <div class="dlg-head"><h3>アイコン</h3></div>
+<div class="dlg-head">
+    <div class="sh-side"></div>
+    <h3>アイコン</h3>
+    <div class="sh-side right"><button type="button" class="sh-btn" id="iconClose">閉じる</button></div>
+  </div>
   <div class="dlg-body">
     <input type="search" id="iconQ" placeholder="サービス名で探す" aria-label="検索">
     <div class="icon-grid" id="iconGrid"></div>
-  </div>
-  <div class="dlg-foot">
-    <span style="flex:1"></span>
-    <button type="button" class="btn" id="iconClose">閉じる</button>
   </div>
 </dialog>
 
 <!-- ===== 並び順・絞り込み（登録一覧） ===== -->
 <dialog id="dlgFilter">
-  <div class="dlg-head"><h3>並び順・絞り込み</h3></div>
+<div class="dlg-head">
+    <div class="sh-side"><button type="button" class="sh-btn" id="filterReset">リセット</button></div>
+    <h3>並び順・絞り込み</h3>
+    <div class="sh-side right"><button type="button" class="sh-btn primary" id="filterDone">完了</button></div>
+  </div>
   <div class="dlg-body">
       <label class="f"><span>並び順</span>
         <select id="fSort">
@@ -1574,38 +1665,33 @@ dialog > #undoBar { position: absolute; bottom: 84px; }
         <select id="fCat"><option value="">すべて</option></select>
       </label>
   </div>
-  <div class="dlg-foot">
-    <button type="button" class="btn" id="filterReset">リセット</button>
-    <span style="flex:1"></span>
-    <button type="button" class="btn primary" id="filterDone">完了</button>
-  </div>
 </dialog>
 
 <!-- ===== 実際の金額（毎月金額が変わる項目） ===== -->
 <dialog id="dlgAmt">
   <form id="formAmt" method="dialog">
-    <div class="dlg-head">
-      <h3 id="amtTitle">実際の金額</h3>
-      <p class="sub" id="amtSub" style="margin:2px 0 0;text-align:center;font-size:var(--t-xs);color:var(--ink-3)"></p>
+  <div class="dlg-head">
+      <div class="sh-side"><button type="button" class="sh-btn" id="amtCancel">キャンセル</button></div>
+      <div class="ttl"><h3 id="amtTitle">実際の金額</h3><p class="sub" id="amtSub"></p></div>
+      <div class="sh-side right"><button type="submit" class="sh-btn primary">記録</button></div>
     </div>
     <div class="dlg-body">
       <label class="f"><span>請求された金額（円）</span>
         <input type="number" name="amt" min="0" step="1" inputmode="numeric" required>
       </label>
       <p class="mini" id="amtHint" style="margin:0"></p>
-    </div>
-    <div class="dlg-foot">
-      <button type="button" class="btn danger" id="amtClear" hidden>記録を消す</button>
-      <span style="flex:1"></span>
-      <button type="button" class="btn" id="amtCancel">キャンセル</button>
-      <button type="submit" class="btn primary">記録</button>
+      <button type="button" class="danger-row" id="amtClear" hidden>記録を消す</button>
     </div>
   </form>
 </dialog>
 
 <!-- ===== 設定（狭い画面ではツールバーの歯車から開く） ===== -->
 <dialog id="dlgMore">
-  <div class="dlg-head"><h3>設定</h3></div>
+<div class="dlg-head">
+    <div class="sh-side"></div>
+    <h3>設定</h3>
+    <div class="sh-side right"><button type="button" class="sh-btn" id="moreClose">閉じる</button></div>
+  </div>
   <div class="dlg-body">
     <div class="more-group">
       <button type="button" class="more-row" data-more="rates">
@@ -1625,28 +1711,25 @@ dialog > #undoBar { position: absolute; bottom: 84px; }
       </button>
     </div>
   </div>
-  <div class="dlg-foot">
-    <span style="flex:1"></span>
-    <button type="button" class="btn" id="moreClose">閉じる</button>
-  </div>
 </dialog>
 
 <!-- ===== その日の支払い ===== -->
 <dialog id="dlgDay">
-  <div class="dlg-head">
-    <h3 id="dayTitle">—</h3>
-    <p class="sub" id="daySub" style="margin:2px 0 0;font-size:11.5px;color:var(--muted)"></p>
+<div class="dlg-head">
+    <div class="sh-side"></div>
+    <div class="ttl"><h3 id="dayTitle">—</h3><p class="sub" id="daySub"></p></div>
+    <div class="sh-side right"><button type="button" class="sh-btn" id="dayClose">閉じる</button></div>
   </div>
   <div class="dlg-body"><div class="up-list" id="dayList"></div></div>
-  <div class="dlg-foot">
-    <span style="flex:1"></span>
-    <button type="button" class="btn" id="dayClose">閉じる</button>
-  </div>
 </dialog>
 
 <!-- ===== バックアップと復元 ===== -->
 <dialog id="dlgBackup">
-  <div class="dlg-head"><h3>バックアップと復元</h3></div>
+<div class="dlg-head">
+    <div class="sh-side"></div>
+    <h3>バックアップと復元</h3>
+    <div class="sh-side right"><button type="button" class="sh-btn" id="bkClose">閉じる</button></div>
+  </div>
   <div class="dlg-body">
     <div class="bk-h">端末間の同期</div>
     <div class="bk-box" id="syncStatus"></div>
@@ -1676,15 +1759,17 @@ dialog > #undoBar { position: absolute; bottom: 84px; }
     <button type="button" class="btn" id="btnImport">ファイルから読み込む</button>
     <button type="button" class="btn sr" id="btnExport">書き出し</button>
     <input type="file" id="fileIn" accept="application/json" class="sr">
-    <span style="flex:1"></span>
-    <button type="button" class="btn" id="bkClose">閉じる</button>
   </div>
 </dialog>
 
 <!-- ===== 為替レート ===== -->
 <dialog id="dlgRates">
   <form id="formRates" method="dialog">
-    <div class="dlg-head"><h3>為替レート</h3></div>
+  <div class="dlg-head">
+      <div class="sh-side"><button type="button" class="sh-btn" id="btnRatesCancel">キャンセル</button></div>
+      <h3>為替レート</h3>
+      <div class="sh-side right"><button type="submit" class="sh-btn primary">保存</button></div>
+    </div>
     <div class="dlg-body">
       <div class="bk-box" id="fxStatus"></div>
       <div class="presets">
@@ -1700,11 +1785,6 @@ dialog > #undoBar { position: absolute; bottom: 84px; }
       <div class="bk-h">1通貨あたりの日本円（手入力も可）</div>
       <div class="f2" id="rateFields"></div>
       <p class="mini" style="margin:0">自動更新を有効にしていると、手入力した値は次回の取得時に上書きされます。</p>
-    </div>
-    <div class="dlg-foot">
-      <span style="flex:1"></span>
-      <button type="button" class="btn" id="btnRatesCancel">キャンセル</button>
-      <button type="submit" class="btn primary">保存</button>
     </div>
   </form>
 </dialog>
@@ -3208,7 +3288,7 @@ function syncCycleUi() {
 function openItem(id) {
   editingId = id;
   const it = id ? state.items.find(x => x.id === id) : null;
-  $("#dlgTitle").textContent = tr(it ? "内容を編集" : "サブスク・固定費を追加");
+  $("#dlgTitle").textContent = tr(it ? "内容を編集" : "新しい項目");
   $("#btnDel").hidden = !it;
   $("#itemErr").textContent = "";
   const f = formItem;
@@ -4413,6 +4493,7 @@ $("#stmtAdd").onclick = () => {
 ["#fCat", "#fStat", "#fKind", "#fSort"].forEach(s => $(s).onchange = renderAll);
 $("#fQ").oninput = renderAll;
 $("#btnAdd").onclick = () => openItem(null);
+$("#fabAdd").onclick = () => openItem(null);
 // 支払済みの記録（未払いカードと30日リストの両方から）
 document.addEventListener("click", e => {
   const ab = e.target.closest("[data-amt]");
