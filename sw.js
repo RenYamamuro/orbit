@@ -1,7 +1,7 @@
 /* オフラインで開けるようにするためのサービスワーカー。
    アプリ本体は1ファイルなので、シェルを丸ごと先読みして
    「まずキャッシュを返し、裏で更新する」方式にしている。 */
-const VERSION = "v21";
+const VERSION = "v22";
 const CACHE = `subman-${VERSION}`;
 const SHELL = [
   "./",

@@ -974,7 +974,7 @@ table.data.list tbody tr { cursor: pointer; }
 
 /* 項目の色付きアイコン（頭文字＋カテゴリの色） */
 .av {
-  flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--c, #6b7280); color: #fff;
+  flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--c, #68707c); color: #fff;
   display: inline-grid; place-items: center; font-size: 13px; font-weight: 700; line-height: 1;
 }
 .up-row .av { order: 2; }
@@ -1043,7 +1043,7 @@ td:first-child > .mini { padding-left: 40px; }
   table.data.list tbody tr.open { grid-template-columns: 36px minmax(0, 1fr) auto 14px; column-gap: var(--s3); }
   table.data.list tbody tr::before {
     content: attr(data-av); grid-column: 1; grid-row: 1 / 3; align-self: center;
-    width: 36px; height: 36px; border-radius: 50%; background: var(--c, #6b7280); color: #fff;
+    width: 36px; height: 36px; border-radius: 50%; background: var(--c, #68707c); color: #fff;
     display: grid; place-items: center; font-size: 15px; font-weight: 700; line-height: 1;
   }
   table.data.list tbody tr > td:first-child { grid-column: 2; }
@@ -1088,7 +1088,7 @@ td:first-child > .mini { padding-left: 40px; }
 @media (max-width: 720px) {
   table.data.list tbody tr::before {
     color: var(--ink, #fff); box-shadow: inset 0 0 0 1px rgba(128, 128, 128, .18);
-    background: var(--logo, none) center / 20px 20px no-repeat, var(--c, #6b7280);
+    background: var(--logo, none) center / 20px 20px no-repeat, var(--c, #68707c);
   }
 }
 /* お知らせ：本体（押すと該当の画面へ）と、閉じる × に分ける */
@@ -1802,11 +1802,16 @@ const UNIT_LABEL = { day: "日", week: "週", month: "ヶ月", year: "年" };
 const DOW = LANG === "en" ? DOW_EN : DOW_JA;
 const DAY_MS = 86400000;
 const catLabel = c => tr(c);          // カテゴリは日本語のまま保存し、表示だけ訳す
-// カテゴリの色。白い文字を載せても読める濃さにしてある（4.5:1 以上）
+// カテゴリの色。白い文字を載せても読める濃さにしてある（4.5:1 以上）。
+// 12色を濃い色だけで分けきるのは無理なので、意味の近いものを同じ色の系統にまとめている。
+// 赤と緑は「注意」「順調」、紫はアプリのボタンに取っておくため、カテゴリには使わない
 const CAT_COLOR = {
-  "動画": "#d1344b", "音楽": "#c13584", "ゲーム": "#7b4fd6", "ツール/仕事": "#2f6fd1", "クラウド/AI": "#0f7fa8",
-  "通信": "#13806a", "住居/光熱": "#b45309", "保険": "#4d7c0f", "税・社会保険": "#3f6ba3", "学習": "#a16207",
-  "積立/投資": "#15803d", "その他": "#6b7280",
+  // 楽しみ：暖色で鮮やか
+  "動画": "#d6336c", "音楽": "#a62ca6", "ゲーム": "#c2410c", "学習": "#8a6d00",
+  // 仕事・デジタル：寒色の青系
+  "ツール/仕事": "#1d6fe0", "クラウド/AI": "#0b7d99", "通信": "#4f5fb0",
+  // 生活の固定費：落ち着いた土の色
+  "住居/光熱": "#9c4f3a", "保険": "#4f7f3a", "税・社会保険": "#7d6a80", "積立/投資": "#0f7b62", "その他": "#68707c",
 };
 function catColor(c) { return CAT_COLOR[c] || CAT_COLOR["その他"]; }
 /* 名前からカテゴリを推し量る。先に言葉で判定し（「楽天モバイル」は通信、「国民健康保険」は税・社会保険）、
