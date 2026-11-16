@@ -8,7 +8,8 @@
 <meta name="description" content="サブスクと毎月の固定費を管理する。月額合計・支払いカレンダー・未払い検出・支払い履歴。">
 <link rel="manifest" href="manifest.webmanifest">
 <script src="i18n.js"></script>
-<script src="brands.js"></script>
+<!-- ロゴのデータ（約57KB）は最初の表示に要らないので、表示を待たせずに読む。届いたら描き直す -->
+<script src="brands.js" async onload="window.brandsReady && brandsReady()"></script>
 <link rel="stylesheet" href="fonts/mplus.css">
 <link rel="icon" href="icons/icon-192-v4.png" sizes="192x192" type="image/png">
 <!-- iOS はホーム画面追加時のアイコンを保持し、Safari 側も強くキャッシュするため、
@@ -1854,11 +1855,20 @@ function guessCategory(name) {
 }
 // 頭文字（絵文字や結合文字でも1文字ぶん取れるように Array.from を通す）
 function initial(name) { return (Array.from(String(name || "").trim())[0] || "?").toUpperCase(); }
-/* サービスのロゴ（brands.js）。icon が "" なら名前から自動で判定、"none" なら頭文字、それ以外はロゴの id */
+/* サービスのロゴ（brands.js）。icon が "" なら名前から自動で判定、"none" なら頭文字、それ以外はロゴの id。
+   brands.js は後から届くので、届くまではロゴなし（頭文字）で描き、届いたら brandsReady で描き直す */
 const BRAND_BY_ID = {};
-BRANDS.forEach(b => { b.rx = new RegExp(b.re); BRAND_BY_ID[b.id] = b; });
+let brandList = [];
+function indexBrands() {
+  if (brandList.length || typeof BRANDS === "undefined") return false;
+  BRANDS.forEach(b => { b.rx = new RegExp(b.re); BRAND_BY_ID[b.id] = b; });
+  brandList = BRANDS;
+  return true;
+}
+indexBrands();
+function brandsReady() { if (indexBrands() && typeof renderAll === "function") renderAll(); }
 function nameKey(n) { return String(n || "").normalize("NFKC").toLowerCase().replace(/\s+/g, ""); }
-function autoBrand(name) { const k = nameKey(name); return k ? BRANDS.find(b => b.rx.test(k)) || null : null; }
+function autoBrand(name) { const k = nameKey(name); return k ? brandList.find(b => b.rx.test(k)) || null : null; }
 function brandOf(it) { return it.icon === "none" ? null : BRAND_BY_ID[it.icon] || autoBrand(it.name); }
 function brandSvg(b) { return `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="${b.ink}" d="${b.path}"/></svg>`; }
 function avatar(it) {
@@ -3236,7 +3246,7 @@ formItem.category.addEventListener("change", renderIconPrev);
 function renderIconGrid() {
   const q = nameKey($("#iconQ").value);
   const cells = [{ id: "", label: tr("自動") }, { id: "none", label: tr("頭文字") }]
-    .concat(BRANDS.filter(b => !q || nameKey(b.name).includes(q) || b.rx.test(q)).map(b => ({ id: b.id, label: b.name })));
+    .concat(brandList.filter(b => !q || nameKey(b.name).includes(q) || b.rx.test(q)).map(b => ({ id: b.id, label: b.name })));
   $("#iconGrid").innerHTML = cells.map(c => `<button type="button" class="icon-cell" data-icon="${c.id}" aria-pressed="${c.id === editIcon}">
       ${avatar(iconSubject(c.id))}<span>${esc(c.label)}</span></button>`).join("");
 }
@@ -3396,6 +3406,9 @@ formItem.addEventListener("submit", e => {
    設定していなければ Firebase の読み込み自体を行わないので、
    使わない人には外部通信も追加の重さも発生しない。
    競合は「更新時刻が新しいほうを採用」の単純な方式。取り込む前に必ず履歴へ退避する */
+// 同期の部品は vendor/ に同梱している（Google の配布物そのまま。互いの読み込み先だけ相対パスに直した）。
+// 外から読むとオフライン用の保存に入らず、電波のない所で開くと同期が「エラー」になるため。
+// 版を上げるときは vendor/ のフォルダごと入れ替え、sw.js の SHELL も直す
 const FB_VER = "11.0.2";
 const FB_CFG_KEY = "subman.fbcfg";
 const SYNC_AT_KEY = "subman.syncAt";
@@ -3433,9 +3446,9 @@ async function initSync(interactive) {
   setSync("connecting");
   try {
     const [appM, authM, fsM] = await Promise.all([
-      import(`https://www.gstatic.com/firebasejs/${FB_VER}/firebase-app.js`),
-      import(`https://www.gstatic.com/firebasejs/${FB_VER}/firebase-auth.js`),
-      import(`https://www.gstatic.com/firebasejs/${FB_VER}/firebase-firestore.js`),
+      import(`./vendor/firebase-${FB_VER}/firebase-app.js`),
+      import(`./vendor/firebase-${FB_VER}/firebase-auth.js`),
+      import(`./vendor/firebase-${FB_VER}/firebase-firestore.js`),
     ]);
     const app = appM.getApps().length ? appM.getApp() : appM.initializeApp(cfg);
     const auth = authM.getAuth(app);

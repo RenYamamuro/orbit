@@ -1,7 +1,7 @@
 /* オフラインで開けるようにするためのサービスワーカー。
    アプリ本体は1ファイルなので、シェルを丸ごと先読みして
    「まずキャッシュを返し、裏で更新する」方式にしている。 */
-const VERSION = "v22";
+const VERSION = "v23";
 const CACHE = `subman-${VERSION}`;
 const SHELL = [
   "./",
@@ -15,6 +15,10 @@ const SHELL = [
   "./icons/icon-192-v4.png",
   "./icons/icon-512-v4.png",
   "./icons/icon-maskable-512-v4.png",
+  // 同期の部品。最初から入れておくと、電波のない所で開いても同期の準備まで進める
+  "./vendor/firebase-11.0.2/firebase-app.js",
+  "./vendor/firebase-11.0.2/firebase-auth.js",
+  "./vendor/firebase-11.0.2/firebase-firestore.js",
 ];
 
 // 足りないものだけ入れ直す。
@@ -52,8 +56,10 @@ self.addEventListener("fetch", e => {
     const cache = await caches.open(CACHE);
     const hit = await cache.match(req, { ignoreSearch: true });
     // GitHub Pages は 10 分の HTTP キャッシュを指示してくるので、画面と処理（HTML・JS・CSS）は
-    // 毎回サーバーに確かめる（変わっていなければ中身は送られてこないので軽い）。フォントや画像はそのまま
-    const fresh = req.mode === "navigate" || /(\/|\.html|\.js|\.css|\.webmanifest)$/.test(url.pathname);
+    // 毎回サーバーに確かめる（変わっていなければ中身は送られてこないので軽い）。フォントや画像はそのまま。
+    // vendor/ は版ごとにフォルダを分けていて中身が変わらないので確かめない
+    const fresh = req.mode === "navigate"
+      || (/(\/|\.html|\.js|\.css|\.webmanifest)$/.test(url.pathname) && !url.pathname.includes("/vendor/"));
     const net = (fresh ? fetch(req.url, { cache: "no-cache", credentials: "same-origin" }) : fetch(req)).then(res => {
       if (res && res.ok) cache.put(req, res.clone());
       return res;

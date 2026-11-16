@@ -12,12 +12,25 @@ GitHub Pages で公開している。更新は `git push` するだけで反映�
 git add -A && git commit -m "変更内容" && git push
 ```
 
+- push の前に自動でテストが走り、失敗したら push が止まる（下の「テスト」）。
 - 端末に届いたかは、アプリを一度閉じて開き直すと分かる（2回目の起動で新しい版に切り替わる）。
 - デプロイのたびに `sw.js` の `VERSION` を上げること（上げないと端末側のキャッシュが入れ替わらない）。
 - GitHub Pages は `Cache-Control: max-age=600` を返すので、`sw.js` は HTML・JS・CSS を
   取りに行くときに HTTP キャッシュを迂回している（迂回しないと最大10分古い版が届く）。
 
 以前は Netlify（subscriptionmanagement-app.netlify.app）で公開していた。
+
+### テスト
+
+同期（端末どうしの変更の合わせ込み）と請求日の計算を確かめる。Node.js があれば追加のインストールは不要。
+
+```bash
+node --test 'tests/*.test.mjs'
+```
+
+- テストは index.html の中の関数を名前で取り出して動かす（`tests/load.mjs`）。関数名を変えたら `NAMES` も直す。
+- `.githooks/pre-push` が push の前にテストを実行し、アプリを変えたのに `sw.js` の `VERSION` を
+  上げ忘れていたら止める。クローンし直したときは一度だけ `git config core.hooksPath .githooks` を実行する。
 
 ### 覚えておくこと（つまずいた箇所）
 
@@ -116,6 +129,11 @@ git add -A && git commit -m "変更内容" && git push
 index.html              アプリ本体（これ1つで全機能）
 manifest.webmanifest    ホーム画面に追加するための情報
 sw.js                   オフライン動作
+i18n.js                 英語の訳と日付の書き方
+brands.js               サービスのロゴ（Simple Icons から生成）
+vendor/firebase-11.0.2/ 同期に使う Firebase（Google の配布物を同梱。オフラインでも読めるように）
+fonts/                  Apple 以外の端末用の丸ゴシック
+tests/                  テスト
 icons/                  アイコン
 README.md               この文書
 ```
